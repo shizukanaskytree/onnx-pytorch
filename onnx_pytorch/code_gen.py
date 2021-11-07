@@ -220,6 +220,46 @@ def test_run_model(inputs=[{', '.join(numpy_input_str)}]):''',
       if hasattr(op_code_gen, k):
         setattr(op_code_gen, k, v)
 
+  def construct_partitions(self):
+    self.preprocess_onnx_model()
+
+    model = self.onnx_model
+    # content: https://gist.github.com/shizukanaskytree/beac660dfc9aa8be92e3308bade0b617
+    # skeleton: https://github.com/onnx/onnx/blob/master/onnx/onnx-ml.proto3
+
+    model.ir_version
+    model.opset_import
+
+
+    # 0
+    p0 = onnx.ModelProto()
+    p0.ir_version = model.ir_version
+    # http://www.yeolar.com/note/2014/12/23/protobuf-python-generated/
+    p0.opset_import.extend(model.opset_import)
+    p0.producer_name = model.producer_name
+    p0.producer_version = model.producer_version
+    p0.domain = model.domain
+    p0.model_version = model.model_version
+    p0.doc_string = model.doc_string
+    p0.metadata_props.extend(model.metadata_props)
+    p0.training_info.extend(model.training_info)
+    p0.functions.extend(model.functions)
+
+    # 这才是重头戏.
+    p0_graph = onnx.GraphProto()
+
+
+
+
+
+
+    # 1
+    p1 = onnx.ModelProto()
+
+
+
+
+
   def run(self):
     self.preprocess_onnx_model()
     initializers = {i.name: i for i in self.onnx_model.graph.initializer}
@@ -288,7 +328,8 @@ def gen(
   model_code_generator = get_model_code_generator(
       onnx_model, output_dir, overwrite, tensor_inplace, simplify_names,
       continue_on_error, embedding_conf_file, shape_infer)
-  model_code_generator.run()
+  # model_code_generator.run()
+  model_code_generator.construct_partitions()
 
 
 def get_model_code_generator(

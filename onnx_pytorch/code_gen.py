@@ -230,6 +230,9 @@ def test_run_model(inputs=[{', '.join(numpy_input_str)}]):''',
     value_infos.update(output_value_infos)
     value_infos.update({i.name: i for i in self.onnx_model.graph.value_info})
 
+    # It fixed the bug of https://www.notion.so/xiaofengwu/bert-bug-fixing-783077bfd9bf494398af9427616e1d1d
+    value_infos.update(initializers)
+
     for i in self.onnx_model.graph.initializer:
       self.rename_helper.get_tensor_name(i.name)
 
